@@ -1,4 +1,4 @@
-import {getPromise} from './helpers.js';
+import {getPromise, propertyType} from './helpers.js';
 
 let MAXREQUEST = 5; // 最大请求数
 // 增加请求队列
@@ -129,6 +129,38 @@ function continueQueue() {
 }
 
 /**
+ * 
+ * @param {Object} response
+ * @param {object} validSchema
+ * {
+ *   result: {
+ *      required:true,type:Object
+ *   }
+ * }
+*/
+function validResponse(response, validSchema) {
+    try {
+        if (!response || !response.data) {
+            console && console.warn('response为空');
+        } else if (validSchema && typeof validSchema === 'object') {
+            for (const [key, value] of Object.entries(validSchema)) {
+                if (value.required && !response.data[key] || value.type && propertyType(response.data[key]) !== value.type.toLowerCase()) {
+                    console && console.warn('response格式错误:', key);
+                    break;
+                }
+                if (propertyType(response.data[key]) === 'object') {
+                    validResponse(response.data[key].properties);
+                }
+                if (propertyType(response.data[key]) === 'array') {
+                    validResponse(response.data[key].items);
+                }
+            }
+        }
+    } catch (e) {}
+}
+
+
+/**
  *
  * @param {Object} configs
  *
@@ -153,6 +185,7 @@ function $$fetch(configs) {
         ...postconfig,
         success(response) {
             if (response && response.statusCode === 200) {
+                validResponse(response, postconfig.$resValid);
                 defer.resolve(response);
             } else {
                 defer.reject(response);
@@ -180,10 +213,11 @@ function $$fetch(configs) {
  */
 export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get') {
     let configs = {url, data, axiosConfigs, method};
-    let {$top, $noCache, $withCancel} = axiosConfigs;
+    let {$top, $noCache, $withCancel, $resValid} = axiosConfigs;
     delete axiosConfigs.$top;
     delete axiosConfigs.$noCache;
     delete axiosConfigs.$withCancel;
+    delete axiosConfigs.$resValid;
 
     axiosConfigs = {
         dataType: 'json',

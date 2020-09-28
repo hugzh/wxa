@@ -2,6 +2,7 @@ import {
     formatDate,
     trim,
     compareVersion,
+    propertyType,
 } from '../src/utils/helpers';
 
 describe('formatDate', ()=>{
@@ -57,5 +58,22 @@ describe('compareVersion', ()=>{
         expect(compareVersion(1.3, '1.1')).toBe(1);
         expect(compareVersion('2.0.0', '1.9.90')).toBe(1);
         expect(compareVersion('1.9.98', '1.9.90')).toBe(1);
+    });
+});
+
+describe('propertyType', ()=>{
+    test('special input', ()=>{
+        expect(propertyType(null)).toBe('null');
+        expect(propertyType(undefined)).toBe('undefined');
+        expect(propertyType()).toBe('undefined');
+    });
+
+    test('normal input', ()=>{
+        expect(propertyType([])).toBe('array');
+        expect(propertyType({})).toBe('object');
+        expect(propertyType(123)).toBe('number');
+        expect(propertyType(123.00)).toBe('number');
+        expect(propertyType('abc')).toBe('string');
+        expect(propertyType(()=>{})).toBe('function');
     });
 });

@@ -73,3 +73,7 @@ export function getPromise() {
 
     return {resolve: res, reject: rej, promise, defer: promise};
 }
+
+export function propertyType(property) {
+    return Object.prototype.toString.call(property).replace('[object ', '').replace(']', '').toLowerCase();
+} 

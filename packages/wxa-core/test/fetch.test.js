@@ -6,10 +6,15 @@ import {
     setRequestExpiredTime,
 } from '../src/utils/fetch';
 
+import 'jest-plugin-console-matchers/setup';
+
 const users = {
     4: {name: 'Mark'},
     5: {name: 'Paul'},
     10: {name: 'Ives'},
+    11: {name: 'Jack'},
+    12: {name: 'Hanmeimei'},
+    13: {name: 'Lilei', info: {contry: ['UK', 'USA']}},
 };
 
 beforeAll(()=>{
@@ -40,6 +45,12 @@ describe('fetch api', ()=>{
         await expect(fetch('/users/5', {}, {}, 'get')).resolves.toEqual(wrapStatusCode({name: 'Paul'}));
 
         await expect(fetch('/users/6', {}, {}, 'post')).rejects.toMatchSnapshot();
+    });
+
+    test('make a normal request with resValid', async () => {
+        await expect(fetch('/users/11', {}, {$resValid: {'name': {type: 'string'}}}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Jack'}));
+
+        await expect(fetch('/users/12', {}, {$resValid: {'name': {required: true}}}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Hanmeimei'}));
     });
 
     test('404 page', async ()=>{
@@ -98,7 +109,6 @@ describe('fetch api', ()=>{
         await fetch('/users/4', {}, {}, 'post').catch(c1);
 
         await expect(fetch('/users/4', {}, {}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Mark'}));
-
     });
 });
 
