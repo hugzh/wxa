@@ -47,10 +47,10 @@ describe('fetch api', ()=>{
         await expect(fetch('/users/6', {}, {}, 'post')).rejects.toMatchSnapshot();
     });
 
-    test('make a normal request with resValid', async () => {
-        await expect(fetch('/users/11', {}, {$resValid: {'name': {type: 'string'}}}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Jack'}));
+    test('make a normal request with resSchema', async () => {
+        await expect(fetch('/users/11', {}, {$resSchema: {'name': {type: 'string'}}}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Jack'}));
 
-        await expect(fetch('/users/12', {}, {$resValid: {'name': {required: true}}}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Hanmeimei'}));
+        await expect(fetch('/users/12', {}, {$resSchema: {'name': {required: true}}}, 'post')).resolves.toEqual(wrapStatusCode({name: 'Hanmeimei'}));
     });
 
     test('404 page', async ()=>{

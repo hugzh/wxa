@@ -131,19 +131,19 @@ function continueQueue() {
 /**
  * 
  * @param {Object} response
- * @param {object} validSchema
+ * @param {object} resSchema
  * {
  *   result: {
  *      required:true,type:Object
  *   }
  * }
 */
-function validResponse(response, validSchema) {
+function validResponse(response, resSchema) {
     try {
         if (!response || !response.data) {
             console && console.warn('response为空');
-        } else if (validSchema && typeof validSchema === 'object') {
-            for (const [key, value] of Object.entries(validSchema)) {
+        } else if (resSchema && typeof resSchema === 'object') {
+            for (const [key, value] of Object.entries(resSchema)) {
                 if (value.required && !response.data[key] || value.type && propertyType(response.data[key]) !== value.type.toLowerCase()) {
                     console && console.warn('response格式错误:', key);
                     break;
@@ -185,7 +185,7 @@ function $$fetch(configs) {
         ...postconfig,
         success(response) {
             if (response && response.statusCode === 200) {
-                validResponse(response, postconfig.$resValid);
+                validResponse(response, axiosConfigs.$resSchema);
                 defer.resolve(response);
             } else {
                 defer.reject(response);
@@ -213,11 +213,10 @@ function $$fetch(configs) {
  */
 export default function fetch(url, data = {}, axiosConfigs = {}, method = 'get') {
     let configs = {url, data, axiosConfigs, method};
-    let {$top, $noCache, $withCancel, $resValid} = axiosConfigs;
+    let {$top, $noCache, $withCancel} = axiosConfigs;
     delete axiosConfigs.$top;
     delete axiosConfigs.$noCache;
     delete axiosConfigs.$withCancel;
-    delete axiosConfigs.$resValid;
 
     axiosConfigs = {
         dataType: 'json',
